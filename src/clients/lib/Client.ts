@@ -3,6 +3,7 @@ import { ClientManagerOptions, ClientOptions, HttpClient } from "../types";
 export class Client {
   private online: boolean = false;
   private authenticated: boolean = false;
+  private token: string | null = null;
   private pingTimer: number | null = null;
 
   constructor(
@@ -23,6 +24,13 @@ export class Client {
 
   isOnline(): Readonly<boolean> {
     return this.online;
+  }
+
+  getToken(): string {
+    if (!this.token)
+      throw new Error("Token is not set.");
+
+    return this.token;
   }
 
   startPing(delay = 0): void {
