@@ -1,3 +1,5 @@
+import type { Client } from "./lib/Client";
+
 export interface ClientSettings {
   name: string;
   baseUrl: string;
@@ -6,21 +8,19 @@ export interface ClientSettings {
 }
 
 export interface ClientOptions {
-  loginEndpoint?: string;
   loginIntervalDelay?: number;
   loginMaxTry?: number;
-  pingEndpoint?: string;
   pingOfflineMaxDelay?: number;
   pingOnlineDelay?: number;
 }
+
+export type ClientPingFn = (client: Client) => Promise<void>;
+export type ClientAuthenticationFn = (client: Client) => Promise<string>;
 
 export interface ClientManagerOptions {
   onClientStatus?: (client: string, status: boolean) => void;
   onAuthenticated?: (client: string) => void;
   onUnauthenticated?: (client: string) => void;
-}
-
-export interface HttpClient {
-  get: <TReturn>(url: string) => Promise<TReturn>;
-  post: <TReturn, TPayload = any>(url: string, payload: TPayload) => Promise<TReturn>;
+  clientPingFn: ClientPingFn;
+  clientAuthenticationFn: ClientAuthenticationFn;
 }

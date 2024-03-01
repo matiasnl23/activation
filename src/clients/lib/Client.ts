@@ -1,4 +1,4 @@
-import { ClientManagerOptions, ClientOptions, HttpClient } from "../types";
+import { ClientManagerOptions, ClientOptions } from "../types";
 
 export class Client {
   private online: boolean = false;
@@ -7,14 +7,12 @@ export class Client {
   private pingTimer: number | null = null;
 
   constructor(
-    private httpClient: HttpClient,
     public name: string,
     public baseUrl: string,
     public priority: number,
-    private options: ClientOptions & ClientManagerOptions = {},
+    private options: ClientOptions & ClientManagerOptions,
   ) {
     this.startPing();
-
     this.options.onClientStatus && this.options.onClientStatus(this.name, this.online);
   }
 
@@ -53,10 +51,8 @@ export class Client {
   }
 
   async ping(delay: number): Promise<void> {
-    const url = `${this.baseUrl}/${this.options.pingEndpoint ?? ''}`;
-
     try {
-      await this.httpClient.get(url);
+      await this.options.clientPingFn(this);
       if (!this.isOnline()) {
         this.online = true;
         this.options.onClientStatus && this.options.onClientStatus(this.name, this.online);

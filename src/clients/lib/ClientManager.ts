@@ -1,16 +1,16 @@
-import { ClientManagerOptions, ClientSettings, HttpClient } from "../types";
+import { ClientManagerOptions, ClientSettings } from "../types";
 import { Client } from "./Client";
 
 export class ClientManager {
   private clients: Client[] = [];
 
-  constructor(private httpClient: HttpClient, private options?: ClientManagerOptions) { }
+  constructor(private options: ClientManagerOptions) { }
 
   addClient({ name, baseUrl, priority, options }: ClientSettings): void {
     if (this.clients.some(c => c.name === name))
       throw new Error(`Client with name ${name} already exists.`);
 
-    const client = new Client(this.httpClient, name, baseUrl, priority, {
+    const client = new Client(name, baseUrl, priority, {
       ...options,
       ...this.options
     })
