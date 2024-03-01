@@ -21,5 +21,6 @@ export interface ClientManagerOptions {
 }
 
 export interface HttpClient {
-  get: <T>(url: string) => Promise<T>;
+  get: <TReturn>(url: string) => Promise<TReturn>;
+  post: <TReturn, TPayload = any>(url: string, payload: TPayload) => Promise<TReturn>;
 }
