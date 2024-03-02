@@ -7,6 +7,9 @@ export class FetchClient implements HttpClient {
   ): Promise<TReturn> {
     const result = await fetch(url, {
       method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
       ...options
     });
     return result.json() as TReturn;
@@ -19,9 +22,13 @@ export class FetchClient implements HttpClient {
   ): Promise<TReturn> {
     const result = await fetch(url, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
       ...options,
       body: JSON.stringify(payload),
     });
+
     return result.json() as TReturn;
   };
 }
