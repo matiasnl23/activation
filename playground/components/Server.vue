@@ -11,7 +11,7 @@ const circleColor = computed(() => props.online ? "green" : "red");
 </script>
 
 <template>
-  <li class="client-container">
+  <li class="server-container">
     <div class="circle" :class="[circleColor]"></div>
     {{ name }}
     <button @click="$emit('remove', $props.name)">X</button>
@@ -19,7 +19,7 @@ const circleColor = computed(() => props.online ? "green" : "red");
 </template>
 
 <style scoped>
-.client-container {
+.server-container {
   display: flex;
   gap: 5px;
 }

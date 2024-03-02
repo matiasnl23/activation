@@ -1,6 +1,6 @@
-import { ClientManagerOptions, ClientOptions } from "../types";
+import { ServerManagerOptions, ServerOptions } from "../types";
 
-export class Client {
+export class Server {
   private online: boolean = false;
   private authenticated: boolean = false;
   private token: string | null = null;
@@ -13,10 +13,10 @@ export class Client {
     public name: string,
     public baseUrl: string,
     public priority: number,
-    private options: ClientOptions & ClientManagerOptions,
+    private options: ServerOptions & ServerManagerOptions,
   ) {
     this.startPing();
-    this.options.onClientStatus && this.options.onClientStatus(this.name, this.online);
+    this.options.onServerStatus && this.options.onServerStatus(this.name, this.online);
   }
 
   isAuthenticated(): Readonly<boolean> {
@@ -55,16 +55,16 @@ export class Client {
 
   async ping(delay: number): Promise<void> {
     try {
-      await this.options.clientPingFn(this);
+      await this.options.serverPingFn(this);
       if (!this.isOnline()) {
         this.online = true;
-        this.options.onClientStatus && this.options.onClientStatus(this.name, this.online);
+        this.options.onServerStatus && this.options.onServerStatus(this.name, this.online);
         this.authenticate();
       }
     } catch (err) {
       if (this.isOnline()) {
         this.online = false;
-        this.options.onClientStatus && this.options.onClientStatus(this.name, this.online);
+        this.options.onServerStatus && this.options.onServerStatus(this.name, this.online);
         this.authTimer && clearTimeout(this.authTimer);
         delay = 0;
       }
@@ -81,7 +81,7 @@ export class Client {
     delay = Math.min(delay, this.options.loginIntervalDelay ?? 120000);
 
     try {
-      this.token = await this.options.clientAuthenticationFn(this);
+      this.token = await this.options.serverAuthenticationFn(this);
       this.authenticated = true;
       this.authCounter = 0;
     } catch {

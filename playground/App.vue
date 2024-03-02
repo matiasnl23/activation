@@ -1,30 +1,36 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useClientManager } from "./composables/manager";
-import Client from "./components/Client.vue";
+import { useServerManager } from "./composables/server-manager";
+import Server from "./components/Server.vue";
 
 const name = ref<string>();
 const priority = ref<number>();
 const url = ref<string>();
 
-const { clients, addClient, removeClient } = useClientManager();
+const { servers, addServer, removeServer } = useServerManager();
 
 
 const onSubmit = () => {
   if (!name.value || !url.value || !priority.value) return;
-  addClient(name.value, url.value, priority.value);
+  addServer(name.value, url.value, priority.value);
 }
 </script>
 
 <template>
   <div>
-    <h4>Clientes</h4>
+    <h4>Servers</h4>
 
     <ul>
-      <Client v-for="client in clients" :key="client.name" :name="client.name" :online="client.status" @remove="removeClient"/>
+      <Server
+        v-for="server in servers"
+        :key="server.name"
+        :name="server.name"
+        :online="server.status"
+        @remove="removeServer"
+      />
     </ul>
 
-    <form class="client-form" @submit.prevent="onSubmit">
+    <form class="server-form" @submit.prevent="onSubmit">
       <div class="form-group">
         <label for="name">Name</label>
         <input v-model="name" id="name" type="text">
