@@ -4,7 +4,10 @@ export class Client {
   private online: boolean = false;
   private authenticated: boolean = false;
   private token: string | null = null;
+
   private pingTimer: number | null = null;
+  private authTimer: number | null = null;
+  private authCounter: number = 0;
 
   constructor(
     public name: string,
@@ -56,11 +59,13 @@ export class Client {
       if (!this.isOnline()) {
         this.online = true;
         this.options.onClientStatus && this.options.onClientStatus(this.name, this.online);
+        this.authenticate();
       }
     } catch (err) {
       if (this.isOnline()) {
         this.online = false;
         this.options.onClientStatus && this.options.onClientStatus(this.name, this.online);
+        this.authTimer && clearTimeout(this.authTimer);
         delay = 0;
       }
 
@@ -70,7 +75,27 @@ export class Client {
     }
   }
 
+  async authenticate(delay = 1000): Promise<void> {
+    if (this.authTimer) clearTimeout(this.authTimer);
+
+    delay = Math.min(delay, this.options.loginIntervalDelay ?? 120000);
+
+    try {
+      this.token = await this.options.clientAuthenticationFn(this);
+      this.authenticated = true;
+      this.authCounter = 0;
+    } catch {
+      this.authCounter++;
+
+      if (this.authCounter > (this.options.loginMaxTry ?? 20))
+        throw new Error("Maximum authentication attempts reached.");
+
+      this.authTimer = setTimeout(() => this.authenticate(delay * 1.2), delay);
+    }
+  }
+
   destroy(): void {
     this.pingTimer && clearTimeout(this.pingTimer);
+    this.authTimer && clearTimeout(this.authTimer);
   }
 }

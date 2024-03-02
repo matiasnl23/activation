@@ -1,10 +1,28 @@
 import { ref } from "vue";
 import { ClientManager } from "../../src/clients";
 import { ClientAuthenticationFn, ClientPingFn } from "../../src/clients/types";
+import { Client } from "../../src/clients/lib/Client";
 
 const PING_QUERY = `{
   serverStatus {
     status
+  }
+}`;
+
+const GUID_MUTATION = `mutation {
+  activation {
+    id {
+      guid: activationId
+      secret: activationToken
+    }
+  } 
+}`;
+
+const TOKEN_MUTATION = `mutation ($guid: String!, $secret: String!) {
+  activation {
+    info(activationId: $guid, activationToken: $secret) {
+      token
+    }
   }
 }`;
 
@@ -44,8 +62,57 @@ export const useClientManager = () => {
       throw new Error(`Server named ${client.name} is down.`);
   };
 
+  const getActivationData = async (client: Client): Promise<{ guid: string, secret: string }> => {
+    const storedData = localStorage.getItem("activation");
+    if (storedData) {
+      return JSON.parse(storedData) as { guid: string, secret: string };
+    } else {
+      const response = await fetch(`${client.baseUrl}/graphql`, {
+        method: "POST",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          query: GUID_MUTATION
+        })
+      });
+      const { data } = await response.json();
+
+      if (!data?.activation?.id)
+        throw new Error("Cannot get activation data.");
+
+      const { guid, secret } = data.activation.id as { guid: string, secret: string };
+      localStorage.setItem("activation", JSON.stringify({ guid, secret }));
+
+      return { guid, secret };
+    }
+  }
+
   const clientAuthenticationFn: ClientAuthenticationFn = async (client) => {
-    return `token-for-${client.name}`;
+    const { guid, secret } = await getActivationData(client);
+
+    const response = await fetch(`${client.baseUrl}/graphql`, {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        query: TOKEN_MUTATION,
+        variables: {
+          guid,
+          secret
+        }
+      })
+    });
+
+    const { data } = await response.json();
+
+    if (!data?.activation?.info?.token)
+      throw new Error("Cannot get token.");
+
+    return data.activation.info.token as string;
   }
 
   const clientManager = new ClientManager({ onClientStatus, clientPingFn, clientAuthenticationFn })
