@@ -55,7 +55,7 @@ export class Server {
 
   async ping(delay: number): Promise<void> {
     try {
-      await this.options.serverPingFn(this);
+      await this.options.pingFn(this);
       if (!this.isOnline()) {
         this.online = true;
         this.options.onServerStatus && this.options.onServerStatus(this.name, this.online);
@@ -81,7 +81,7 @@ export class Server {
     delay = Math.min(delay, this.options.loginIntervalDelay ?? 120000);
 
     try {
-      this.token = await this.options.serverAuthenticationFn(this);
+      this.token = await this.options.authenticationFn(this);
 
       if (!this.isAuthenticated()) {
         this.authenticated = true;

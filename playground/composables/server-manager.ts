@@ -15,10 +15,7 @@ export const useServerManager = () => {
       const server = getServer(name);
 
       if (server) {
-        servers.value = [
-          ...servers.value.filter(c => c.name !== name),
-          { ...server, status }
-        ]
+        server.status = status;
       } else {
         servers.value.push({ name, status, authenticated: false });
       }
@@ -33,13 +30,13 @@ export const useServerManager = () => {
       const server = getServer(name);
 
       if (server)
-        server.authenticated = true;
+        server.authenticated = false;
     },
-    serverAuthenticationFn: async (server) => {
+    authenticationFn: async (server) => {
       const { guid, secret } = await getActivationData(server);
       return serverService.getToken(server.baseUrl, guid, secret);
     },
-    serverPingFn: async (server) => {
+    pingFn: async (server) => {
       serverService.ping(server.name, server.baseUrl);
     }
   });

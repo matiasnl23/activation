@@ -14,13 +14,13 @@ export interface ServerOptions {
   pingOnlineDelay?: number;
 }
 
-export type ServerPingFn = (server: Server) => Promise<void>;
-export type ServerAuthenticationFn = (server: Server) => Promise<string>;
+export type PingFn = (server: Server) => Promise<void>;
+export type AuthenticationFn = (server: Server) => Promise<string>;
 
 export interface ServerManagerOptions {
   onServerStatus?: (server: string, status: boolean) => void;
   onAuthenticated?: (server: string) => void;
   onUnauthenticated?: (server: string) => void;
-  serverPingFn: ServerPingFn;
-  serverAuthenticationFn: ServerAuthenticationFn;
+  authenticationFn: AuthenticationFn;
+  pingFn: PingFn;
 }
