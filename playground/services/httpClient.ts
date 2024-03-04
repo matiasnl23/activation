@@ -1,6 +1,4 @@
-import { HttpClient } from "../../src/clients/types";
-
-export class FetchClient implements HttpClient {
+export class FetchClient {
   async get<TReturn>(
     url: string,
     options?: Omit<RequestInit, "method" | "body">

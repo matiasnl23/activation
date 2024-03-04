@@ -19,11 +19,11 @@ export class Server {
     this.options.onServerStatus && this.options.onServerStatus(this.name, this.online);
   }
 
-  isAuthenticated(): Readonly<boolean> {
+  isAuthenticated(): boolean {
     return this.authenticated;
   }
 
-  isOnline(): Readonly<boolean> {
+  isOnline(): boolean {
     return this.online;
   }
 
