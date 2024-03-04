@@ -1,6 +1,6 @@
-import { ServerManagerOptions, ServerOptions } from "../types";
+import { ConnectionManagerOptions, ConnectionOptions } from "../types";
 
-export class Server {
+export class Connection {
   private online: boolean = false;
   private authenticated: boolean = false;
   private token: string | null = null;
@@ -13,10 +13,10 @@ export class Server {
     public name: string,
     public baseUrl: string,
     public priority: number,
-    private options: ServerOptions & ServerManagerOptions,
+    private options: ConnectionOptions & ConnectionManagerOptions,
   ) {
     this.startPing();
-    this.options.onServerStatus && this.options.onServerStatus(this.name, this.online);
+    this.options.onConnectionStatus && this.options.onConnectionStatus(this.name, this.online);
   }
 
   isAuthenticated(): boolean {
@@ -58,13 +58,13 @@ export class Server {
       await this.options.pingFn(this);
       if (!this.isOnline()) {
         this.online = true;
-        this.options.onServerStatus && this.options.onServerStatus(this.name, this.online);
+        this.options.onConnectionStatus && this.options.onConnectionStatus(this.name, this.online);
         this.authenticate();
       }
     } catch (err) {
       if (this.isOnline()) {
         this.online = false;
-        this.options.onServerStatus && this.options.onServerStatus(this.name, this.online);
+        this.options.onConnectionStatus && this.options.onConnectionStatus(this.name, this.online);
         this.authTimer && clearTimeout(this.authTimer);
         delay = 0;
       }

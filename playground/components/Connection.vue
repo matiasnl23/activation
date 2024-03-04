@@ -18,7 +18,7 @@ const circleColor = computed(() =>
 </script>
 
 <template>
-  <li class="server-container">
+  <li class="connection-container">
     <div class="circle" :class="[circleColor]"></div>
     {{ name }}
     <button @click="$emit('remove', $props.name)">X</button>
@@ -26,7 +26,7 @@ const circleColor = computed(() =>
 </template>
 
 <style scoped>
-.server-container {
+.connection-container {
   display: flex;
   gap: 5px;
 }

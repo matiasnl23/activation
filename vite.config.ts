@@ -4,10 +4,15 @@ import vue from "@vitejs/plugin-vue";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
-  plugins: [vue(), dts()],
+  plugins: [
+    vue(),
+    dts({
+      tsconfigPath: "tsconfig.build.json"
+    })
+  ],
   build: {
     lib: {
-      entry: resolve(__dirname, "src/servers/index.ts"),
+      entry: resolve(__dirname, "src/connection/index.ts"),
       name: "@qu-beyond/activation",
       fileName: "index"
     },

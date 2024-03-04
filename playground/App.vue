@@ -1,37 +1,37 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useServerManager } from "./composables/server-manager";
-import Server from "./components/Server.vue";
+import { useConnectionManager } from "./composables/connection-manager";
+import Connection from "./components/Connection.vue";
 
 const name = ref<string>();
 const priority = ref<number>();
 const url = ref<string>();
 
-const { servers, addServer, removeServer } = useServerManager();
+const { connections, addConnection, removeConnection } = useConnectionManager();
 
 
 const onSubmit = () => {
   if (!name.value || !url.value || !priority.value) return;
-  addServer(name.value, url.value, priority.value);
+  addConnection(name.value, url.value, priority.value);
 }
 </script>
 
 <template>
   <div>
-    <h4>Servers</h4>
+    <h4>Connections</h4>
 
     <ul>
-      <Server
-        v-for="server in servers"
-        :key="server.name"
-        :name="server.name"
-        :authenticated="server.authenticated"
-        :online="server.status"
-        @remove="removeServer"
+      <Connection
+        v-for="connection in connections"
+        :key="connection.name"
+        :name="connection.name"
+        :authenticated="connection.authenticated"
+        :online="connection.status"
+        @remove="removeConnection"
       />
     </ul>
 
-    <form class="server-form" @submit.prevent="onSubmit">
+    <form class="connection-form" @submit.prevent="onSubmit">
       <div class="form-group">
         <label for="name">Name</label>
         <input v-model="name" id="name" type="text">
