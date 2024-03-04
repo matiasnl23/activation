@@ -82,9 +82,18 @@ export class Server {
 
     try {
       this.token = await this.options.serverAuthenticationFn(this);
-      this.authenticated = true;
-      this.authCounter = 0;
+
+      if (!this.isAuthenticated()) {
+        this.authenticated = true;
+        this.authCounter = 0;
+        this.options.onAuthenticated && this.options.onAuthenticated(this.name);
+      }
     } catch {
+      if (this.isAuthenticated()) {
+        this.authenticated = false;
+        this.options.onUnauthenticated && this.options.onUnauthenticated(this.name);
+      }
+
       this.authCounter++;
 
       if (this.authCounter > (this.options.loginMaxTry ?? 20))

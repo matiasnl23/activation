@@ -2,12 +2,19 @@
 import { computed } from 'vue';
 
 interface Props {
+  authenticated: boolean;
   online: boolean;
   name: string;
 }
 
 const props = defineProps<Props>();
-const circleColor = computed(() => props.online ? "green" : "red");
+const circleColor = computed(() =>
+  props.online && props.authenticated
+    ? "green"
+    : props.online
+      ? "yellow"
+      :  "red"
+);
 </script>
 
 <template>
@@ -32,6 +39,10 @@ const circleColor = computed(() => props.online ? "green" : "red");
 
 .circle.red {
   background-color: red;
+}
+
+.circle.yellow {
+  background-color: yellow;
 }
 
 .circle.green {

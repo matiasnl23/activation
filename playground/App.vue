@@ -25,6 +25,7 @@ const onSubmit = () => {
         v-for="server in servers"
         :key="server.name"
         :name="server.name"
+        :authenticated="server.authenticated"
         :online="server.status"
         @remove="removeServer"
       />

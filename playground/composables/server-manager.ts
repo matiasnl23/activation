@@ -23,6 +23,18 @@ export const useServerManager = () => {
         servers.value.push({ name, status, authenticated: false });
       }
     },
+    onAuthenticated: (name) => {
+      const server = getServer(name);
+
+      if (server)
+        server.authenticated = true;
+    },
+    onUnauthenticated: (name) => {
+      const server = getServer(name);
+
+      if (server)
+        server.authenticated = true;
+    },
     serverAuthenticationFn: async (server) => {
       const { guid, secret } = await getActivationData(server);
       return serverService.getToken(server.baseUrl, guid, secret);
@@ -42,7 +54,7 @@ export const useServerManager = () => {
       return;
     }
 
-    servers.value.push({ name, status: false });
+    servers.value.push({ name, status: false, authenticated: false });
     serverManager.addServer({ name, priority, baseUrl: url });
   }
 
