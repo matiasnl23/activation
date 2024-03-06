@@ -1,32 +1,46 @@
+import axios, { AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
+
+export interface FetchContext {
+  fetchContext?: {
+    name?: string;
+    ignoreAuth?: boolean;
+  }
+}
+
 export class FetchClient {
-  async get<TReturn>(
-    url: string,
-    options?: Omit<RequestInit, "method" | "body">
-  ): Promise<TReturn> {
-    const result = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      ...options
+  private static instance?: FetchClient;
+  private client = axios.create();
+
+  constructor() {
+    if (FetchClient.instance)
+      return FetchClient.instance;
+
+    FetchClient.instance = this;
+
+    this.client.interceptors.response.use((response) => {
+      console.log(`[Response] [${response.status}] ${response.config.url}`, response.config.data);
+      return response;
     });
-    return result.json() as TReturn;
   }
 
-  async post<TReturn, TPayload = any>(
+  async get<TReturn>(
+    url: string,
+    options?: AxiosRequestConfig<never>
+  ): Promise<TReturn> {
+    const { data } = await this.client.get<TReturn>(url, options)
+    return data;
+  }
+
+  async post<TReturn, TPayload = Record<string, any> & FetchContext>(
     url: string,
     payload: TPayload,
-    options?: Omit<RequestInit, "method" | "body">
+    options?: AxiosRequestConfig<TPayload> | undefined
   ): Promise<TReturn> {
-    const result = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      ...options,
-      body: JSON.stringify(payload),
-    });
-
-    return result.json() as TReturn;
+    const { data } = await this.client.post<TReturn>(url, payload, options);
+    return data;
   };
+
+  addInterceptor(interceptorFn: (config: InternalAxiosRequestConfig<FetchContext>) => InternalAxiosRequestConfig<any>) {
+    this.client.interceptors.request.use(interceptorFn);
+  }
 }

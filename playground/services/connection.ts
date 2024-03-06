@@ -1,36 +1,22 @@
 import { GUID_MUTATION, TOKEN_MUTATION } from "../graphql/mutations";
 import { PING_QUERY } from "../graphql/queries";
+import { ActivationDataResponse, ConnectionData, GraphQLResponse, PingResponse, UrlsResponse } from "../types";
 import { FetchClient } from "./httpClient"
 
+const ACTIVATION_STORAGE_KEY = "activation";
+const URLS_STORAGE_KEY = "connections-urls";
+
 const http = new FetchClient();
-
-interface GraphQLResponse<T> {
-  data?: T
-};
-
-interface PingResponse {
-  serverStatus?: {
-    status: boolean;
-  }
-}
-
-interface ActivationDataResponse {
-  activation?: {
-    id?: {
-      guid: string;
-      secret: string;
-    },
-    info?: {
-      token: string;
-    }
-  }
-}
 
 export const ping = async (name: string, url: string) => {
   const { data } = await http.post<GraphQLResponse<PingResponse>>(
     `${url}/graphql`,
-    { query: PING_QUERY },
-    { cache: "no-cache" }
+    {
+      query: PING_QUERY,
+      fetchContext: {
+        ignoreAuth: true
+      }
+    }
   );
 
   if (!data?.serverStatus?.status)
@@ -40,8 +26,12 @@ export const ping = async (name: string, url: string) => {
 export const getActivationData = async (url: string) => {
   const { data } = await http.post<GraphQLResponse<ActivationDataResponse>>(
     `${url}/graphql`,
-    { query: GUID_MUTATION },
-    { cache: "no-cache" }
+    {
+      query: GUID_MUTATION,
+      fetchContext: {
+        ignoreAuth: true
+      }
+    }
   );
 
   if (!data?.activation?.id)
@@ -63,9 +53,11 @@ export const getToken = async (
       variables: {
         guid,
         secret
+      },
+      fetchContext: {
+        ignoreAuth: true
       }
-    },
-    { cache: "no-cache" }
+    }
   );
 
   if (!data?.activation?.info?.token)
@@ -73,3 +65,16 @@ export const getToken = async (
 
   return data.activation.info.token;
 }
+
+export const getStoredUrls = (): ConnectionData[] | null => {
+  const storedData = localStorage.getItem(URLS_STORAGE_KEY);
+
+  if (!storedData)
+    return null;
+
+  return JSON.parse(storedData) as ConnectionData[];
+};
+
+export const storeUrls = (urls: ConnectionData[]) => {
+  localStorage.setItem(URLS_STORAGE_KEY, JSON.stringify(urls));
+};

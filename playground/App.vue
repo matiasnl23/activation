@@ -2,13 +2,13 @@
 import { ref } from "vue";
 import { useConnectionManager } from "./composables/connection-manager";
 import Connection from "./components/Connection.vue";
+import { getTerminalContext } from "./services/settings";
 
 const name = ref<string>();
 const priority = ref<number>();
 const url = ref<string>();
 
 const { connections, addConnection, removeConnection } = useConnectionManager();
-
 
 const onSubmit = () => {
   if (!name.value || !url.value || !priority.value) return;
@@ -47,6 +47,8 @@ const onSubmit = () => {
 
       <button type="submit">Add</button>
     </form>
+
+    <button @click="getTerminalContext">Get context</button>
   </div>
 </template>
 
