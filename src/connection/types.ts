@@ -21,6 +21,7 @@ export interface ConnectionManagerOptions {
   onConnectionStatus?: (server: string, status: boolean) => void;
   onAuthenticated?: (server: string) => void;
   onUnauthenticated?: (server: string) => void;
+  onMaxAttemptsReached?: (server: string) => void;
   authenticationFn: AuthenticationFn;
   pingFn: PingFn;
 }

@@ -68,8 +68,6 @@ export class Connection {
         this.authTimer && clearTimeout(this.authTimer);
         delay = 0;
       }
-
-      console.error(err);
     } finally {
       this.startPing(delay);
     }
@@ -96,10 +94,10 @@ export class Connection {
 
       this.authCounter++;
 
-      if (this.authCounter > (this.options.loginMaxTry ?? 20))
-        throw new Error("Maximum authentication attempts reached.");
-
-      this.authTimer = setTimeout(() => this.authenticate(delay * 1.2), delay);
+      if (this.authCounter >= (this.options.loginMaxTry ?? 20))
+        this.options.onMaxAttemptsReached && this.options.onMaxAttemptsReached(this.name);
+      else
+        this.authTimer = setTimeout(() => this.authenticate(delay * 1.2), delay);
     }
   }
 
