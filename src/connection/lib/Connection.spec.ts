@@ -147,4 +147,42 @@ describe("Connection", () => {
 
     client.destroy();
   });
+
+  it("Should start again authenticating when calling unauthenticate method", async () => {
+    pingFn.mockResolvedValue("");
+    authenticationFn
+      .mockRejectedValue(new Error("Not authorized."));
+
+    const client = new Connection(
+      "remote",
+      "http://localhost:3000",
+      100,
+      {
+        pingFn,
+        authenticationFn,
+        onAuthenticated,
+        onMaxAttemptsReached
+      }
+    );
+
+    for(let i = 0; i < 50; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    expect(authenticationFn).toHaveBeenCalledTimes(20);
+    expect(onMaxAttemptsReached).toHaveBeenCalledTimes(1);
+    expect(onMaxAttemptsReached).toHaveBeenLastCalledWith("remote");
+
+    client.unauthenticate();
+
+    for(let i = 0; i < 50; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    expect(authenticationFn).toHaveBeenCalledTimes(40);
+    expect(onMaxAttemptsReached).toHaveBeenCalledTimes(2);
+    expect(onMaxAttemptsReached).toHaveBeenLastCalledWith("remote");
+
+    client.destroy();
+  });
 });

@@ -8,6 +8,7 @@ export class Connection {
   private pingTimer: number | null = null;
   private authTimer: number | null = null;
   private authCounter: number = 0;
+  private maxAttemptsReached = false;
 
   constructor(
     public name: string,
@@ -94,11 +95,25 @@ export class Connection {
 
       this.authCounter++;
 
-      if (this.authCounter >= (this.options.loginMaxTry ?? 20))
+      if (this.authCounter >= (this.options.loginMaxTry ?? 20)) {
         this.options.onMaxAttemptsReached && this.options.onMaxAttemptsReached(this.name);
-      else
+        this.maxAttemptsReached = true;
+      }
+
+      if (!this.maxAttemptsReached)
         this.authTimer = setTimeout(() => this.authenticate(delay * 1.2), delay);
     }
+  }
+
+  unauthenticate(): void {
+    if (!this.authenticated && !this.maxAttemptsReached)
+      return;
+
+    this.maxAttemptsReached = false;
+    this.authCounter = 0;
+    this.authenticated = false;
+    this.token = null;
+    this.authenticate();
   }
 
   destroy(): void {
