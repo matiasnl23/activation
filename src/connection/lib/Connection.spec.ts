@@ -3,7 +3,6 @@ import { Connection } from "./Connection";
 const pingFn = vi.fn();
 const authenticationFn = vi.fn();
 const onAuthenticated = vi.fn();
-const onUnauthenticated = vi.fn();
 const onConnectionStatus = vi.fn();
 const onMaxAttemptsReached = vi.fn();
 

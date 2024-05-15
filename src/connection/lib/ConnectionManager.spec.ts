@@ -164,5 +164,26 @@ describe("ConnectionManager", () => {
       const client = manager.getAuthenticated();
       expect(client.name).toBe("local");
     });
-  })
+  });
+
+  it("Should switch between connections", async () => {
+    const manager = new ConnectionManager({ authenticationFn, pingFn });
+    manager.addConnection({ name: "local", baseUrl: "http://local.url/", priority: 10 });
+    manager.addConnection({ name: "remote", baseUrl: "http://remote.url/", priority: 100 });
+
+    // Authentication succeed for both clients
+    await vi.advanceTimersByTimeAsync(30000);
+    let client = manager.getAuthenticated();
+    expect(client.name).toBe("local");
+
+    // Unauthenticate local client, remote client will be used
+    client.unauthenticate();
+    client = manager.getAuthenticated();
+    expect(client.name).toBe("remote");
+
+    // Reauthenticate local client, it becomes available again
+    await vi.advanceTimersByTimeAsync(30000);
+    client = manager.getAuthenticated();
+    expect(client.name).toBe("local");
+  });
 });
